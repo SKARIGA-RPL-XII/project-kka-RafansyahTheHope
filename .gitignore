@@ -1,0 +1,70 @@
+# =====================
+# UNITY GITIGNORE
+# =====================
+
+# Library folder
+[Ll]ibrary/
+
+# Temp files
+[Tt]emp/
+[Oo]bj/
+
+# Build results
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+
+# User-specific files
+[Uu]ser[Ss]ettings/
+
+# MemoryCaptures can get very large
+[Mm]emoryCaptures/
+
+# AssetStore tools cache
+[Aa]ssets/AssetStoreTools*
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Unity crash reports
+sysinfo.txt
+
+# Package manager
+Packages/packages-lock.json
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+
+# Logs
+*.log
+
+# Addressables build
+[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio cache
+.vs/
+
+# IL2CPP
+*.cpp
+*.h
