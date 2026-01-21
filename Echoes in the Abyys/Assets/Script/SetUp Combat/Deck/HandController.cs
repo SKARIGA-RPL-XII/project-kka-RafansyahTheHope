@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 public class HandController : MonoBehaviour
 {
     public DeckManager deckManager;
+    public EnemyHealth enemyHealth;
 
     public int maxHandSize = 4;
     public int maxSelect = 2;
@@ -59,9 +61,12 @@ public class HandController : MonoBehaviour
 
         yield return new WaitForSeconds(resolveDelay);
 
+        bool isChain = ChainResolver.CheckChain(selected[0], selected[1]);
+
         foreach (var card in selected)
         {
-            Debug.Log($"Played: {card.data.cardName}");
+            CardEffectResolver.Resolve(card, enemyHealth, isChain);
+
             deckManager.ReturnToBottom(card);
         }
 
@@ -74,4 +79,5 @@ public class HandController : MonoBehaviour
 
         isResolving = false;
     }
+
 }

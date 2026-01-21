@@ -15,4 +15,8 @@ MonoBehaviour:
   cardName: Nature
   cardType: 0
   element: 1
-  value: 1
+  baseDamage: 10
+  healAmount: 0
+  chainMultiplier: 1.5
+  dotAmount: 0
+  dotTurns: 0

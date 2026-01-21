@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class ChainResolver
 {
-    public static void CheckChain(CardInstance first, CardInstance second)
+    public static bool CheckChain(CardInstance first, CardInstance second)
     {
-        if (first.data.element != second.data.element) return;
+        if (first == null || second == null) return false;
 
-        Debug.Log($"CHAIN TRIGGERED: {first.data.element}");
-        // nanti di sini efek chain
+        return first.data.element == second.data.element;
     }
 }

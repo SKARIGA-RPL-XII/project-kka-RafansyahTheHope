@@ -2,25 +2,27 @@ using UnityEngine;
 
 public class CardEffectResolver
 {
-    public static void Resolve(CardInstance card)
+    public static void Resolve(
+        CardInstance card,
+        EnemyHealth enemy,
+        bool isChainActive)
     {
-        switch (card.data.cardType)
+        if (card.data.cardType == CardType.Attack)
         {
-            case CardType.Attack:
-                Debug.Log($"Attack for {card.data.value}");
-                break;
+            int damage = card.data.baseDamage;
 
-            case CardType.Heal:
-                Debug.Log($"Heal for {card.data.value}");
-                break;
+            if (isChainActive)
+            {
+                damage = Mathf.RoundToInt(damage * card.data.chainMultiplier);
+                Debug.Log("CHAIN BONUS APPLIED!");
+            }
 
-            case CardType.Buff:
-                Debug.Log("Apply Buff");
-                break;
+            enemy.TakeDamage(damage);
+        }
 
-            case CardType.Debuff:
-                Debug.Log("Apply Debuff");
-                break;
+        if (card.data.cardType == CardType.Heal)
+        {
+            Debug.Log("Heal not implemented yet");
         }
     }
 }
