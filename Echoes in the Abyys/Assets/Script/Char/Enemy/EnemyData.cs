@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyData : ScriptableObject
 {
     public string enemyName;
-    public int hp;
+    public int maxHP;
     public int damage;
+
 }

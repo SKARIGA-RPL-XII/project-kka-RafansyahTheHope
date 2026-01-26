@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-
 public class HandController : MonoBehaviour
 {
     public DeckManager deckManager;
-    public EnemyHealth enemyHealth;
+    public TurnManager turnManager;
+    public EnemyManager enemyManager;
 
     public int maxHandSize = 4;
     public int maxSelect = 2;
     public float resolveDelay = 0.5f;
+    public bool inputLocked = false;
 
     public List<CardInstance> hand = new();
     public List<CardInstance> selected = new();
 
-    public event Action OnResolveStart;  
-    public event Action OnResolveFinish; 
+    public event Action OnResolveStart;
+    public event Action OnResolveFinish;
 
     bool isResolving = false;
 
@@ -35,7 +36,7 @@ public class HandController : MonoBehaviour
 
     public bool CanSelect()
     {
-        return !isResolving && selected.Count < maxSelect;
+        return !isResolving && !inputLocked && selected.Count < maxSelect;
     }
 
     // === CLICK CARD ===
@@ -61,13 +62,28 @@ public class HandController : MonoBehaviour
 
         yield return new WaitForSeconds(resolveDelay);
 
-        bool isChain = ChainResolver.CheckChain(selected[0], selected[1]);
-
-        foreach (var card in selected)
+        if (enemyManager == null || turnManager == null)
         {
-            CardEffectResolver.Resolve(card, enemyHealth, isChain);
+            Debug.LogError("HandController: EnemyManager or TurnManager not assigned!");
+            yield break;
+        }
 
-            deckManager.ReturnToBottom(card);
+        bool isChain = selected.Count >= 2 &&
+                       ChainResolver.CheckChain(selected[0], selected[1]);
+
+        var target = enemyManager.GetTarget();
+
+        if (target == null)
+        {
+            Debug.Log("No enemies alive!");
+        }
+        else
+        {
+            foreach (var card in selected)
+            {
+                CardEffectResolver.Resolve(card, target.health, isChain);
+                deckManager.ReturnToBottom(card);
+            }
         }
 
         selected.Clear();
@@ -78,6 +94,12 @@ public class HandController : MonoBehaviour
             hand.Add(deckManager.DrawCard());
 
         isResolving = false;
+
+        turnManager.EndPlayerTurn();
     }
 
+    public void SetInputLock(bool value)
+    {
+        inputLocked = value;
+    }
 }
