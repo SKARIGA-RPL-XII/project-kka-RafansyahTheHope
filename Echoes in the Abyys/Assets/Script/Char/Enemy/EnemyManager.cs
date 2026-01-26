@@ -1,21 +1,34 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 
 public class EnemyManager : MonoBehaviour
 {
     public List<EnemyController> enemies = new();
+    public event Action<EnemyController> OnTargetChanged;
+    public EnemySelectIndicator selectIndicator;
+
 
     EnemyController selectedTarget;
 
     // === TARGETING ===
     public void SelectTarget(EnemyController enemy)
     {
-        if (enemy == null || enemy.health.currentHP <= 0)
-            return;
+    if (enemy == null || enemy.health.currentHP <= 0)
+        return;
 
-        selectedTarget = enemy;
-        Debug.Log($"Target selected: {enemy.data.enemyName}");
+    selectedTarget = enemy;
+
+    Debug.Log("Target selected: " + enemy.data.enemyName);
+
+    if (selectIndicator != null)
+        selectIndicator.SetTarget(enemy.transform);
+
+    OnTargetChanged?.Invoke(selectedTarget);
     }
+
+
 
     public EnemyController GetTarget()
     {
