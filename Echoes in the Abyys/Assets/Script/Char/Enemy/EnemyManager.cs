@@ -8,24 +8,43 @@ public class EnemyManager : MonoBehaviour
     public List<EnemyController> enemies = new();
     public event Action<EnemyController> OnTargetChanged;
     public EnemySelectIndicator selectIndicator;
+    public event Action OnAllEnemiesDead;
+
 
 
     EnemyController selectedTarget;
 
+    void Start()
+    {
+        foreach (var e in enemies)
+        {
+            if (e != null && e.health != null)
+            {
+                e.health.OnDeath += () => OnEnemyDeath(e);
+            }
+        }
+    }
+
     // === TARGETING ===
     public void SelectTarget(EnemyController enemy)
     {
-    if (enemy == null || enemy.health.currentHP <= 0)
-        return;
+        if (selectIndicator != null && enemy == null)
+        {
+            selectIndicator.SetTarget(null);
+            return;
+        }
 
-    selectedTarget = enemy;
+        if (enemy == null || enemy.health.currentHP <= 0)
+            return;
 
-    Debug.Log("Target selected: " + enemy.data.enemyName);
+        selectedTarget = enemy;
 
-    if (selectIndicator != null)
-        selectIndicator.SetTarget(enemy.transform);
+        Debug.Log("Target selected: " + enemy.data.enemyName);
 
-    OnTargetChanged?.Invoke(selectedTarget);
+        if (selectIndicator != null)
+            selectIndicator.SetTarget(enemy.transform);
+
+        OnTargetChanged?.Invoke(selectedTarget);
     }
 
 
@@ -70,4 +89,30 @@ public class EnemyManager : MonoBehaviour
         }
         return true;
     }
+    void CheckEnemiesDead()
+    {
+        if (AreAllEnemiesDead())
+        {
+            Debug.Log("=== ALL ENEMIES DEFEATED ===");
+            OnAllEnemiesDead?.Invoke();
+        }
+    }
+    void OnEnemyDeath(EnemyController deadEnemy)
+    {
+        Debug.Log("EnemyManager: " + deadEnemy.data.enemyName + " died");
+
+        if (deadEnemy == selectedTarget)
+        {
+            var next = GetFirstAliveEnemy();
+            SelectTarget(next);
+        }
+
+        if (AreAllEnemiesDead())
+        {
+            Debug.Log("=== ALL ENEMIES DEFEATED ===");
+            OnAllEnemiesDead?.Invoke();
+        }
+    }
+
+
 }

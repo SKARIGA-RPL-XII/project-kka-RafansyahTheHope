@@ -15,4 +15,12 @@ MonoBehaviour:
   cardName: Nature
   cardType: 3
   element: 1
-  value: 3
+  baseDamage: 0
+  healAmount: 20
+  chainMultiplier: 1.5
+  dotAmount: 0
+  dotTurns: 0
+  appliesStatus: 0
+  statusType: 0
+  statusValue: 0
+  statusDuration: 0

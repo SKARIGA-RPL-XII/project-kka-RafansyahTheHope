@@ -2,27 +2,60 @@ using UnityEngine;
 
 public class CardEffectResolver
 {
-    public static void Resolve(
-        CardInstance card,
-        EnemyHealth enemy,
-        bool isChainActive)
+    public static void Resolve(CardInstance card, EnemyHealth targetHealth, bool isChain)
     {
-        if (card.data.cardType == CardType.Attack)
+        if (card == null || card.data == null)
+            return;
+
+        var data = card.data;
+
+        float multiplier = isChain ? data.chainMultiplier : 1f;
+
+        switch (data.cardType)
         {
-            int damage = card.data.baseDamage;
+            case CardType.Attack:
+                if (targetHealth == null) return;
 
-            if (isChainActive)
-            {
-                damage = Mathf.RoundToInt(damage * card.data.chainMultiplier);
-                Debug.Log("CHAIN BONUS APPLIED!");
-            }
+                int damage = Mathf.RoundToInt(data.baseDamage * multiplier);
 
-            enemy.TakeDamage(damage);
+                Debug.Log($"Attack {targetHealth.gameObject.name} for {damage}");
+
+                targetHealth.TakeDamage(damage);
+                break;
+
+            case CardType.Heal:
+                var player = Object.FindObjectOfType<PlayerHealth>();
+                if (player == null) return;
+
+                int heal = Mathf.RoundToInt(data.healAmount * multiplier);
+
+                Debug.Log($"Heal player for {heal}");
+
+                player.Heal(heal);
+                break;
+
+            case CardType.Buff:
+                Debug.Log("Buff applied (not implemented yet)");
+                break;
+
+            case CardType.Debuff:
+                Debug.Log("Debuff applied (not implemented yet)");
+                break;
         }
 
-        if (card.data.cardType == CardType.Heal)
+        if (data.appliesStatus && targetHealth != null)
         {
-            Debug.Log("Heal not implemented yet");
+            var status = targetHealth.GetComponent<StatusController>();
+            if (status != null)
+            {
+                status.AddStatus(new StatusEffect(
+                    data.statusType,
+                    data.statusValue,
+                    data.statusDuration
+                ));
+
+                Debug.Log($"{targetHealth.gameObject.name} gained {data.statusType}");
+            }
         }
     }
 }

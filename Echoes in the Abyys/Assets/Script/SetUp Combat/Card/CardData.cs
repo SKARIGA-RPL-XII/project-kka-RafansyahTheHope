@@ -21,4 +21,9 @@ public class CardData : ScriptableObject
     [Header("Status (Optional / Next Step)")]
     public int dotAmount = 0;
     public int dotTurns = 0;
+    public bool appliesStatus;
+    public StatusType statusType;
+    public int statusValue;
+    public int statusDuration;
+
 }

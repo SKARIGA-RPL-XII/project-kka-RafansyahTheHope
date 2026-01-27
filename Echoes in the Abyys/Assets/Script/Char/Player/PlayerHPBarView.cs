@@ -6,9 +6,7 @@ public class PlayerHPBarView : MonoBehaviour
     public PlayerHealth playerHealth;
     public Image fillImage;
 
-    int maxHP;
-
-    void Start()
+    void OnEnable()
     {
         if (playerHealth == null)
         {
@@ -16,35 +14,37 @@ public class PlayerHPBarView : MonoBehaviour
             return;
         }
 
-        maxHP = playerHealth.maxHP;
-
-        playerHealth.OnDamaged += UpdateBar;
+        playerHealth.OnHealthChanged += UpdateBar;
         playerHealth.OnDeath += OnDeath;
+    }
 
+    void Start()
+    {
+        // 🔥 Force initial draw
         UpdateBar(playerHealth.currentHP);
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
         if (playerHealth != null)
         {
-            playerHealth.OnDamaged -= UpdateBar;
+            playerHealth.OnHealthChanged -= UpdateBar;
             playerHealth.OnDeath -= OnDeath;
         }
     }
 
     void UpdateBar(int currentHP)
     {
-        float percent = (float)currentHP / maxHP;
-        fillImage.fillAmount = percent;
+        if (playerHealth.maxHP <= 0) return;
 
-        // BONUS: warna dinamis
+        float percent = Mathf.Clamp01((float)currentHP / playerHealth.maxHP);
+        fillImage.fillAmount = percent;
         fillImage.color = Color.Lerp(Color.red, Color.green, percent);
     }
 
     void OnDeath()
     {
-        Debug.Log("PLAYER DEFEATED - HP bar hidden");
+        fillImage.fillAmount = 0f;
         gameObject.SetActive(false);
     }
 }

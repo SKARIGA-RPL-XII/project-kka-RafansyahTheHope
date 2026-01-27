@@ -15,4 +15,12 @@ MonoBehaviour:
   cardName: PhsycalHeal
   cardType: 3
   element: 0
-  value: 3
+  baseDamage: 0
+  healAmount: 10
+  chainMultiplier: 1.5
+  dotAmount: 0
+  dotTurns: 0
+  appliesStatus: 0
+  statusType: 0
+  statusValue: 0
+  statusDuration: 0

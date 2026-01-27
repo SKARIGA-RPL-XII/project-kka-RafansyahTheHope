@@ -6,10 +6,10 @@ public class EnemyHealth : MonoBehaviour
     public int maxHP = 30;
     public int currentHP;
 
-    public event Action OnDeath;
     public event Action<int> OnDamaged;
+    public event Action OnDeath;
 
-    void Awake()
+    void Start()
     {
         currentHP = maxHP;
     }
@@ -17,15 +17,24 @@ public class EnemyHealth : MonoBehaviour
     public void TakeDamage(int amount)
     {
         currentHP -= amount;
-        if (currentHP < 0) currentHP = 0;
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
         Debug.Log($"{gameObject.name} took {amount} damage. HP: {currentHP}/{maxHP}");
+
         OnDamaged?.Invoke(currentHP);
 
-        if (currentHP == 0)
+        if (currentHP <= 0)
         {
-            Debug.Log($"{gameObject.name} defeated!");
-            OnDeath?.Invoke();
+            Die();
         }
+    }
+
+    void Die()
+    {
+        Debug.Log($"{gameObject.name} died!");
+
+        OnDeath?.Invoke();
+
+        gameObject.SetActive(false);
     }
 }

@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: Card_NatureDebuff
   m_EditorClassIdentifier: 
   cardName: NatureDebff
-  cardType: 2
+  cardType: 0
   element: 1
-  value: 4
+  baseDamage: 5
+  healAmount: 0
+  chainMultiplier: 1.5
+  dotAmount: 3
+  dotTurns: 3
+  appliesStatus: 1
+  statusType: 1
+  statusValue: 10
+  statusDuration: 3
