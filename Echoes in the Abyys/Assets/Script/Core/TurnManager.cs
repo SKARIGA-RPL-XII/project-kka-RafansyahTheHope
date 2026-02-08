@@ -3,23 +3,40 @@ using System.Collections;
 
 public class TurnManager : MonoBehaviour
 {
-    public CombatState currentState;
+    [Header("State")]
+    [SerializeField] private CombatState currentState = CombatState.PlayerTurn;
+    public CombatState CurrentState => currentState;
 
+    [Header("References")]
     public EnemyManager enemyManager;
     public PlayerHealth player;
     public HandController handController;
+    public WaveManager waveManager;
+    public ArtifactManager artifactManager;
 
+    [Header("Timing")]
     public float turnTransitionDelay = 0.75f;
     public float enemyAttackDelay = 0.75f;
 
-    bool isProcessingTurn = false;
+    [Header("Turn Rules")]
+    public int currentTurn = 0;
+
+    private bool isProcessingTurn = false;
+    private bool battleEnded = false;
 
     void Start()
     {
-        StartPlayerTurn();
+
+        if (artifactManager != null)
+        {
+            artifactManager.Initialize(this, player, enemyManager, handController);
+            artifactManager.OnBattleStart();
+        }
 
         if (player != null)
             player.OnDeath += OnPlayerDeath;
+
+        StartPlayerTurn();
     }
 
     void OnDestroy()
@@ -30,19 +47,35 @@ public class TurnManager : MonoBehaviour
 
     public void StartPlayerTurn()
     {
+        if (battleEnded)
+            return;
+
+        if (currentState == CombatState.Paused)
+            return;
+
         currentState = CombatState.PlayerTurn;
-        Debug.Log("=== PLAYER TURN ===");
+        currentTurn++;
+
+        Debug.Log($"=== PLAYER TURN {currentTurn} ===");
 
         if (handController != null)
             handController.SetInputLock(false);
 
-        isProcessingTurn = false;
+        artifactManager?.OnTurnStart();
+
+        CheckTurnLimit();
     }
 
     public void EndPlayerTurn()
     {
-        if (currentState != CombatState.PlayerTurn) return;
-        if (isProcessingTurn) return;
+        if (battleEnded)
+            return;
+
+        if (currentState != CombatState.PlayerTurn)
+            return;
+
+        if (isProcessingTurn)
+            return;
 
         StartCoroutine(EnemyTurnRoutine());
     }
@@ -51,7 +84,6 @@ public class TurnManager : MonoBehaviour
     {
         isProcessingTurn = true;
         currentState = CombatState.EnemyTurn;
-        Debug.Log("=== ENEMY TURN ===");
 
         if (handController != null)
             handController.SetInputLock(true);
@@ -59,30 +91,68 @@ public class TurnManager : MonoBehaviour
         yield return new WaitForSeconds(turnTransitionDelay);
 
         if (enemyManager != null && player != null)
-        {
             enemyManager.EnemyTurn(player);
-        }
-        else
-        {
-            Debug.LogError("TurnManager: EnemyManager or Player not assigned!");
-        }
 
         yield return new WaitForSeconds(enemyAttackDelay);
 
-        if (currentState != CombatState.BattleEnd)
-        {
-            StartPlayerTurn();
-        }
+        isProcessingTurn = false;
+
+        StartPlayerTurn();
     }
 
-    void OnPlayerDeath()
+    void CheckTurnLimit()
     {
+        if (waveManager == null)
+            return;
+
+        var wave = waveManager.CurrentWave;
+        if (wave == null)
+            return;
+
+        int maxTurns = wave.maxTurns;
+
+        if (currentTurn > maxTurns)
+            OnTurnLimitReached();
+    }
+
+    void OnTurnLimitReached()
+    {
+        battleEnded = true;
         currentState = CombatState.BattleEnd;
-        Debug.Log("=== GAME OVER ===");
 
         if (handController != null)
             handController.SetInputLock(true);
 
+        Debug.Log("=== PLAYER FAILED: TURN LIMIT ===");
+
         StopAllCoroutines();
+
+        artifactManager?.OnBattleEnd();
+    }
+
+    public void ResetTurnCounter()
+    {
+        currentTurn = 0;
+        Debug.Log("=== TURN COUNTER RESET ===");
+    }
+
+    void OnPlayerDeath()
+    {
+        battleEnded = true;
+        currentState = CombatState.BattleEnd;
+
+        if (handController != null)
+            handController.SetInputLock(true);
+
+        Debug.Log("=== GAME OVER ===");
+
+        StopAllCoroutines();
+
+        artifactManager?.OnBattleEnd();
+    }
+
+    public void SetState(CombatState newState)
+    {
+        currentState = newState;
     }
 }

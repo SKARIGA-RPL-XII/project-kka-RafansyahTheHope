@@ -1,8 +1,13 @@
 using UnityEngine;
 
-public class CardEffectResolver
+public static class CardEffectResolver
 {
-    public static void Resolve(CardInstance card, EnemyHealth targetHealth, bool isChain)
+    public static void Resolve(
+        CardInstance card,
+        EnemyHealth targetHealth,
+        bool isChain,
+        ArtifactManager artifactManager,
+        PlayerHealth player)
     {
         if (card == null || card.data == null)
             return;
@@ -14,25 +19,35 @@ public class CardEffectResolver
         switch (data.cardType)
         {
             case CardType.Attack:
-                if (targetHealth == null) return;
+
+                if (targetHealth == null)
+                    return;
 
                 int damage = Mathf.RoundToInt(data.baseDamage * multiplier);
+
+                // 🔥 ARTIFACT DAMAGE MODIFIER
+                artifactManager?.ModifyDamage(ref damage);
 
                 Debug.Log($"Attack {targetHealth.gameObject.name} for {damage}");
 
                 targetHealth.TakeDamage(damage);
                 break;
 
+
             case CardType.Heal:
-                var player = Object.FindObjectOfType<PlayerHealth>();
-                if (player == null) return;
+
+                if (player == null)
+                    return;
 
                 int heal = Mathf.RoundToInt(data.healAmount * multiplier);
+
+                artifactManager?.ModifyDamage(ref heal);
 
                 Debug.Log($"Heal player for {heal}");
 
                 player.Heal(heal);
                 break;
+
 
             case CardType.Buff:
                 Debug.Log("Buff applied (not implemented yet)");
@@ -43,6 +58,7 @@ public class CardEffectResolver
                 break;
         }
 
+        // === STATUS APPLICATION ===
         if (data.appliesStatus && targetHealth != null)
         {
             var status = targetHealth.GetComponent<StatusController>();

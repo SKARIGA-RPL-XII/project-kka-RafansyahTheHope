@@ -5,18 +5,25 @@ using System;
 
 public class HandController : MonoBehaviour
 {
+    [Header("References")]
     public DeckManager deckManager;
     public TurnManager turnManager;
     public EnemyManager enemyManager;
+    public ArtifactManager artifactManager;   // 🔥 Tambahan
 
+    [Header("Hand Rules")]
     public int maxHandSize = 4;
-    public int maxSelect = 2;
+    public int baseMaxSelect = 2;              // 🔥 Base rule
     public float resolveDelay = 0.5f;
+
+    [Header("Input")]
     public bool inputLocked = false;
 
+    [Header("Runtime")]
     public List<CardInstance> hand = new();
     public List<CardInstance> selected = new();
 
+    public event Action OnHandChanged;
     public event Action OnResolveStart;
     public event Action OnResolveFinish;
 
@@ -25,30 +32,60 @@ public class HandController : MonoBehaviour
     void Start()
     {
         InitHand();
+        OnHandChanged?.Invoke();
     }
 
     void InitHand()
     {
         hand.Clear();
+
         for (int i = 0; i < maxHandSize; i++)
-            hand.Add(deckManager.DrawCard());
+        {
+            var card = deckManager.DrawCard();
+            if (card != null)
+                hand.Add(card);
+        }
+    }
+    int GetMaxSelect()
+    {
+        if (artifactManager == null)
+            return baseMaxSelect;
+
+        return artifactManager.ModifyMaxCardsPerTurn(baseMaxSelect);
     }
 
     public bool CanSelect()
     {
-        return !isResolving && !inputLocked && selected.Count < maxSelect;
+        if (turnManager.CurrentState != CombatState.PlayerTurn)
+            return false;
+
+        return !isResolving &&
+               !inputLocked &&
+               selected.Count < GetMaxSelect();
     }
 
-    // === CLICK CARD ===
     public void SelectCard(CardInstance card)
     {
-        if (!CanSelect()) return;
-        if (!hand.Contains(card)) return;
+        if (!CanSelect() && !selected.Contains(card))
+            return;
+
+        if (selected.Contains(card))
+        {
+            selected.Remove(card);
+            hand.Add(card);
+            OnHandChanged?.Invoke();
+            return;
+        }
+
+        if (!hand.Contains(card))
+            return;
 
         hand.Remove(card);
         selected.Add(card);
 
-        if (selected.Count == maxSelect)
+        OnHandChanged?.Invoke();
+
+        if (selected.Count >= GetMaxSelect())
         {
             StartCoroutine(ResolveWithDelay());
         }
@@ -64,7 +101,8 @@ public class HandController : MonoBehaviour
 
         if (enemyManager == null || turnManager == null)
         {
-            Debug.LogError("HandController: EnemyManager or TurnManager not assigned!");
+            Debug.LogError("HandController: Missing reference!");
+            isResolving = false;
             yield break;
         }
 
@@ -81,7 +119,16 @@ public class HandController : MonoBehaviour
         {
             foreach (var card in selected)
             {
-                CardEffectResolver.Resolve(card, target.health, isChain);
+                CardEffectResolver.Resolve(
+                    card,
+                    target.health,
+                    isChain,
+                    artifactManager,
+                    turnManager.player
+                );
+
+                artifactManager?.OnCardPlayed(card);
+
                 deckManager.ReturnToBottom(card);
             }
         }
@@ -91,7 +138,13 @@ public class HandController : MonoBehaviour
         OnResolveFinish?.Invoke();
 
         while (hand.Count < maxHandSize)
-            hand.Add(deckManager.DrawCard());
+        {
+            var draw = deckManager.DrawCard();
+            if (draw != null)
+                hand.Add(draw);
+        }
+
+        OnHandChanged?.Invoke();
 
         isResolving = false;
 
@@ -101,5 +154,18 @@ public class HandController : MonoBehaviour
     public void SetInputLock(bool value)
     {
         inputLocked = value;
+    }
+
+    public void DrawOneCard()
+    {
+        if (hand.Count >= maxHandSize)
+            return;
+
+        var draw = deckManager.DrawCard();
+        if (draw != null)
+        {
+            hand.Add(draw);
+            OnHandChanged?.Invoke();
+        }
     }
 }

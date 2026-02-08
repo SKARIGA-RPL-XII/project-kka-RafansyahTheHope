@@ -8,22 +8,34 @@ public class EnemyController : MonoBehaviour
 
     void Awake()
     {
-        if (health == null)
+        if (!health)
             health = GetComponent<EnemyHealth>();
 
-        if (status == null)
+        if (!status)
             status = GetComponent<StatusController>();
+    }
 
-        if (data != null && health != null)
+    // DIPANGGIL OLEH WAVEMANAGER
+    public void Init(EnemyData enemyData)
+    {
+        data = enemyData;
+
+        if (health != null && data != null)
         {
             health.maxHP = data.maxHP;
+            health.currentHP = data.maxHP;
+        }
+
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null && data.sprite != null)
+        {
+            sr.sprite = data.sprite;
         }
     }
 
     public void Attack(PlayerHealth player)
     {
-        if (player == null || data == null) return;
-        if (health == null || health.currentHP <= 0) return;
+        if (!player || data == null) return;
 
         Debug.Log($"{data.enemyName} attacks for {data.damage}");
         player.TakeDamage(data.damage);
