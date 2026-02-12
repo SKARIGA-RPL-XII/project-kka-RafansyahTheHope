@@ -12,11 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e6dde0d2ff696749800e50d3b536ba4, type: 3}
   m_Name: card_FireATK
   m_EditorClassIdentifier: 
+  cardId: card_fireball
   cardName: Fire
   cardType: 0
   element: 2
-  baseDamage: 10
+  baseDamage: 50
   healAmount: 0
   chainMultiplier: 1.5
   dotAmount: 0
   dotTurns: 0
+  appliesStatus: 0
+  statusType: 0
+  statusValue: 0
+  statusDuration: 0

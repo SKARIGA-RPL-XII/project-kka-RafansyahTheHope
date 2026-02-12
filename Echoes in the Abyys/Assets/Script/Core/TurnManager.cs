@@ -3,6 +3,7 @@ using System.Collections;
 
 public class TurnManager : MonoBehaviour
 {
+
     [Header("State")]
     [SerializeField] private CombatState currentState = CombatState.PlayerTurn;
     public CombatState CurrentState => currentState;
@@ -14,19 +15,33 @@ public class TurnManager : MonoBehaviour
     public WaveManager waveManager;
     public ArtifactManager artifactManager;
 
+
     [Header("Timing")]
     public float turnTransitionDelay = 0.75f;
     public float enemyAttackDelay = 0.75f;
 
+
     [Header("Turn Rules")]
-    public int currentTurn = 0;
+    [SerializeField] private int currentTurn = 0;
+
+    public int CurrentTurn => currentTurn;
+
+    public int MaxTurns
+    {
+        get
+        {
+            if (waveManager == null || waveManager.CurrentWave == null)
+                return 0;
+
+            return waveManager.CurrentWave.maxTurns;
+        }
+    }
 
     private bool isProcessingTurn = false;
     private bool battleEnded = false;
 
     void Start()
     {
-
         if (artifactManager != null)
         {
             artifactManager.Initialize(this, player, enemyManager, handController);
@@ -47,19 +62,15 @@ public class TurnManager : MonoBehaviour
 
     public void StartPlayerTurn()
     {
-        if (battleEnded)
-            return;
-
-        if (currentState == CombatState.Paused)
-            return;
+        if (battleEnded) return;
+        if (currentState == CombatState.Paused) return;
 
         currentState = CombatState.PlayerTurn;
         currentTurn++;
 
-        Debug.Log($"=== PLAYER TURN {currentTurn} ===");
+        Debug.Log($"=== PLAYER TURN {currentTurn}/{MaxTurns} ===");
 
-        if (handController != null)
-            handController.SetInputLock(false);
+        handController?.SetInputLock(false);
 
         artifactManager?.OnTurnStart();
 
@@ -68,14 +79,9 @@ public class TurnManager : MonoBehaviour
 
     public void EndPlayerTurn()
     {
-        if (battleEnded)
-            return;
-
-        if (currentState != CombatState.PlayerTurn)
-            return;
-
-        if (isProcessingTurn)
-            return;
+        if (battleEnded) return;
+        if (currentState != CombatState.PlayerTurn) return;
+        if (isProcessingTurn) return;
 
         StartCoroutine(EnemyTurnRoutine());
     }
@@ -85,13 +91,11 @@ public class TurnManager : MonoBehaviour
         isProcessingTurn = true;
         currentState = CombatState.EnemyTurn;
 
-        if (handController != null)
-            handController.SetInputLock(true);
+        handController?.SetInputLock(true);
 
         yield return new WaitForSeconds(turnTransitionDelay);
 
-        if (enemyManager != null && player != null)
-            enemyManager.EnemyTurn(player);
+        enemyManager?.EnemyTurn(player);
 
         yield return new WaitForSeconds(enemyAttackDelay);
 
@@ -102,16 +106,9 @@ public class TurnManager : MonoBehaviour
 
     void CheckTurnLimit()
     {
-        if (waveManager == null)
-            return;
+        if (MaxTurns <= 0) return;
 
-        var wave = waveManager.CurrentWave;
-        if (wave == null)
-            return;
-
-        int maxTurns = wave.maxTurns;
-
-        if (currentTurn > maxTurns)
+        if (currentTurn > MaxTurns)
             OnTurnLimitReached();
     }
 
@@ -120,8 +117,7 @@ public class TurnManager : MonoBehaviour
         battleEnded = true;
         currentState = CombatState.BattleEnd;
 
-        if (handController != null)
-            handController.SetInputLock(true);
+        handController?.SetInputLock(true);
 
         Debug.Log("=== PLAYER FAILED: TURN LIMIT ===");
 
@@ -141,8 +137,7 @@ public class TurnManager : MonoBehaviour
         battleEnded = true;
         currentState = CombatState.BattleEnd;
 
-        if (handController != null)
-            handController.SetInputLock(true);
+        handController?.SetInputLock(true);
 
         Debug.Log("=== GAME OVER ===");
 

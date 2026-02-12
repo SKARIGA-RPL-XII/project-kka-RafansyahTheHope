@@ -6,6 +6,9 @@ public enum ElementType { Physical, Nature, Fire, Ghost, Electro }
 [CreateAssetMenu(menuName = "Card/Card Data")]
 public class CardData : ScriptableObject
 {
+    [Header("Database")]
+    public string cardId;   
+
     [Header("Info")]
     public string cardName;
     public CardType cardType;
@@ -25,5 +28,4 @@ public class CardData : ScriptableObject
     public StatusType statusType;
     public int statusValue;
     public int statusDuration;
-
 }

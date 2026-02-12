@@ -3,25 +3,49 @@ using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
-    public List<CardData> initialDeck; // 8 kartu
-
     private Queue<CardInstance> deckQueue = new();
 
-    void Awake()
+    void Start()
     {
-        BuildDeck();
+        BuildDeckFromDatabase();
     }
 
-    void BuildDeck()
+    void BuildDeckFromDatabase()
     {
+        deckQueue.Clear();
+
+        if (DatabaseManager.Instance == null)
+        {
+            Debug.LogError("DatabaseManager not found!");
+            return;
+        }
+
+        if (CardDatabase.Instance == null)
+        {
+            Debug.LogError("CardDatabase not found!");
+            return;
+        }
+
+        var deckEntries = DatabaseManager.Instance.GetDeck();
+
+        if (deckEntries.Count == 0)
+        {
+            Debug.LogWarning("Deck kosong di database!");
+            return;
+        }
+
         List<CardInstance> temp = new();
 
-        foreach (var data in initialDeck)
-            temp.Add(new CardInstance(data));
+        foreach (var entry in deckEntries)
+        {
+            CardData data = CardDatabase.Instance.GetCardById(entry.CardId);
+
+            if (data != null)
+                temp.Add(new CardInstance(data));
+        }
 
         Shuffle(temp);
 
-        deckQueue.Clear();
         foreach (var card in temp)
             deckQueue.Enqueue(card);
     }
@@ -37,6 +61,12 @@ public class DeckManager : MonoBehaviour
 
     public CardInstance DrawCard()
     {
+        if (deckQueue.Count == 0)
+        {
+            Debug.LogWarning("Deck empty!");
+            return null;
+        }
+
         return deckQueue.Dequeue();
     }
 

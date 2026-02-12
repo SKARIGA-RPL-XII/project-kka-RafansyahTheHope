@@ -1602,6 +1602,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 547985140}
   m_CullTransparentMesh: 1
+--- !u!1 &563573058
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 563573059}
+  - component: {fileID: 563573060}
+  m_Layer: 0
+  m_Name: DMGPopupManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &563573059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563573058}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2018339956}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &563573060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563573058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc0c0da6b0168f46b4dd228bec6032e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damagePopupPrefab: {fileID: 8987342042961707179, guid: 4c6c3228625fe774fa1bbd81ffdc54a0, type: 3}
+  canvas: {fileID: 1519112224}
 --- !u!1 &690200122
 GameObject:
   m_ObjectHideFlags: 0
@@ -1631,15 +1677,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b128713ec9a1724080d1d7023290af4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialDeck:
-  - {fileID: 11400000, guid: 09996f499ebe641488c4188aed2adf46, type: 2}
-  - {fileID: 11400000, guid: 09996f499ebe641488c4188aed2adf46, type: 2}
-  - {fileID: 11400000, guid: c835c4b34d27aae43b77910ef5b3f032, type: 2}
-  - {fileID: 11400000, guid: 9b41dabfcc6d0384f8077203a7434469, type: 2}
-  - {fileID: 11400000, guid: 9b41dabfcc6d0384f8077203a7434469, type: 2}
-  - {fileID: 11400000, guid: 9b41dabfcc6d0384f8077203a7434469, type: 2}
-  - {fileID: 11400000, guid: 845a1cdd446fbbd48bafef7b39e12866, type: 2}
-  - {fileID: 11400000, guid: 845a1cdd446fbbd48bafef7b39e12866, type: 2}
 --- !u!4 &690200124
 Transform:
   m_ObjectHideFlags: 0
@@ -1797,9 +1834,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f49ed0323c0f99e46a25857b641fdea8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageWaves:
-  - {fileID: 11400000, guid: 91f19c0a52d6a3f4fa8eaeee231e144e, type: 2}
-  - {fileID: 11400000, guid: e7166e9f8c864e54290462bc842b896d, type: 2}
   waveManager: {fileID: 31278940}
   turnManager: {fileID: 1034950645}
   _currentRound: 1
@@ -3370,7 +3404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26502dc39bd8abb4487412a0579df02e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeArtifact: {fileID: 11400000, guid: 459ca51721757644285ca70553327b2f, type: 2}
+  activeArtifact: {fileID: 0}
 --- !u!1 &1715567120
 GameObject:
   m_ObjectHideFlags: 0
@@ -3829,6 +3863,7 @@ Transform:
   - {fileID: 825253109}
   - {fileID: 169645443}
   - {fileID: 1714106757}
+  - {fileID: 563573059}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

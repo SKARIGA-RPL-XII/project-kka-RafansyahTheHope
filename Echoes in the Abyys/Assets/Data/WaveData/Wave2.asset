@@ -15,3 +15,5 @@ MonoBehaviour:
   enemies:
   - {fileID: 11400000, guid: 0a9c346dca659ce41bcb22ad3baf5aa9, type: 2}
   - {fileID: 11400000, guid: 526273c0d203bdf49bfb151923e3c1d2, type: 2}
+  - {fileID: 11400000, guid: 526273c0d203bdf49bfb151923e3c1d2, type: 2}
+  maxTurns: 20

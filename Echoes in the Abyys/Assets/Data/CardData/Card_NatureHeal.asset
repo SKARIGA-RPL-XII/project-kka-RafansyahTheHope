@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e6dde0d2ff696749800e50d3b536ba4, type: 3}
   m_Name: Card_NatureHeal
   m_EditorClassIdentifier: 
+  cardId: card_heal
   cardName: Nature
   cardType: 3
   element: 1
   baseDamage: 0
   healAmount: 20
-  chainMultiplier: 1.5
+  chainMultiplier: 1
   dotAmount: 0
   dotTurns: 0
   appliesStatus: 0

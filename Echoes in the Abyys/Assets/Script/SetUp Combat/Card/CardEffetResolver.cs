@@ -19,35 +19,12 @@ public static class CardEffectResolver
         switch (data.cardType)
         {
             case CardType.Attack:
-
-                if (targetHealth == null)
-                    return;
-
-                int damage = Mathf.RoundToInt(data.baseDamage * multiplier);
-
-                // 🔥 ARTIFACT DAMAGE MODIFIER
-                artifactManager?.ModifyDamage(ref damage);
-
-                Debug.Log($"Attack {targetHealth.gameObject.name} for {damage}");
-
-                targetHealth.TakeDamage(damage);
+                ResolveAttack(data, targetHealth, multiplier, artifactManager);
                 break;
-
 
             case CardType.Heal:
-
-                if (player == null)
-                    return;
-
-                int heal = Mathf.RoundToInt(data.healAmount * multiplier);
-
-                artifactManager?.ModifyDamage(ref heal);
-
-                Debug.Log($"Heal player for {heal}");
-
-                player.Heal(heal);
+                ResolveHeal(data, player, multiplier, artifactManager);
                 break;
-
 
             case CardType.Buff:
                 Debug.Log("Buff applied (not implemented yet)");
@@ -58,20 +35,75 @@ public static class CardEffectResolver
                 break;
         }
 
-        // === STATUS APPLICATION ===
-        if (data.appliesStatus && targetHealth != null)
-        {
-            var status = targetHealth.GetComponent<StatusController>();
-            if (status != null)
-            {
-                status.AddStatus(new StatusEffect(
-                    data.statusType,
-                    data.statusValue,
-                    data.statusDuration
-                ));
+        ApplyStatusIfNeeded(data, targetHealth);
+    }
 
-                Debug.Log($"{targetHealth.gameObject.name} gained {data.statusType}");
-            }
-        }
+    static void ResolveAttack(
+        CardData data,
+        EnemyHealth targetHealth,
+        float multiplier,
+        ArtifactManager artifactManager)
+    {
+        if (targetHealth == null)
+            return;
+
+        if (!targetHealth.gameObject.activeSelf)
+            return;
+
+        int finalDamage = Mathf.RoundToInt(data.baseDamage * multiplier);
+
+        artifactManager?.ModifyDamage(ref finalDamage);
+
+        if (finalDamage <= 0)
+            return;
+
+        Debug.Log($"FINAL DAMAGE: {finalDamage}");
+
+        targetHealth.TakeDamage(finalDamage);
+    }
+
+    static void ResolveHeal(
+        CardData data,
+        PlayerHealth player,
+        float multiplier,
+        ArtifactManager artifactManager)
+    {
+        if (player == null)
+            return;
+
+        int finalHeal = Mathf.RoundToInt(data.healAmount * multiplier);
+
+        artifactManager?.ModifyDamage(ref finalHeal);
+
+        if (finalHeal <= 0)
+            return;
+
+        Debug.Log($"FINAL HEAL: {finalHeal}");
+
+        player.Heal(finalHeal);
+    }
+
+    static void ApplyStatusIfNeeded(CardData data, EnemyHealth targetHealth)
+    {
+        if (!data.appliesStatus)
+            return;
+
+        if (targetHealth == null)
+            return;
+
+        if (!targetHealth.gameObject.activeSelf)
+            return;
+
+        var status = targetHealth.GetComponent<StatusController>();
+        if (status == null)
+            return;
+
+        status.AddStatus(new StatusEffect(
+            data.statusType,
+            data.statusValue,
+            data.statusDuration
+        ));
+
+        Debug.Log($"{targetHealth.gameObject.name} gained {data.statusType}");
     }
 }

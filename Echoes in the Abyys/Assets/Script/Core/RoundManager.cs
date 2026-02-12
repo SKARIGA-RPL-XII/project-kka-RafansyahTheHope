@@ -3,15 +3,14 @@ using System.Collections.Generic;
 
 public class RoundManager : MonoBehaviour
 {
-    [Header("Stage Setup")]
-    public List<WaveData> stageWaves = new();
+    [Header("References")]
     public WaveManager waveManager;
     public TurnManager turnManager;
 
     [Header("Progress")]
-    [SerializeField] int _currentRound = 1;   
+    [SerializeField] int _currentRound = 1;
 
-    public int CurrentRound => _currentRound; 
+    public int CurrentRound => _currentRound;
 
     bool stageRunning = false;
 
@@ -40,9 +39,17 @@ public class RoundManager : MonoBehaviour
         if (stageRunning)
             return;
 
+        if (RunContext.Instance == null || RunContext.Instance.selectedStage == null)
+        {
+            Debug.LogError("RoundManager: No Stage selected in RunContext!");
+            return;
+        }
+
         stageRunning = true;
 
         Debug.Log($"=== START ROUND {_currentRound} ===");
+
+        List<WaveData> stageWaves = RunContext.Instance.selectedStage.waves;
 
         waveManager.SetWaves(stageWaves);
         waveManager.StartWaves();
@@ -56,7 +63,5 @@ public class RoundManager : MonoBehaviour
 
         stageRunning = false;
         _currentRound++;
-
-        StartStage();
     }
 }

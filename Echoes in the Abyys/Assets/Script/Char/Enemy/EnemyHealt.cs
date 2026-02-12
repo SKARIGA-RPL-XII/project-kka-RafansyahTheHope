@@ -3,6 +3,7 @@ using System;
 
 public class EnemyHealth : MonoBehaviour
 {
+    [Header("Stats")]
     public int maxHP = 30;
     public int currentHP;
 
@@ -16,10 +17,24 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        currentHP -= amount;
+        if (currentHP <= 0)
+            return;
+
+        if (amount <= 0)
+            return;
+
+        int finalDamage = amount;
+
+        currentHP -= finalDamage;
         currentHP = Mathf.Clamp(currentHP, 0, maxHP);
 
-        Debug.Log($"{gameObject.name} took {amount} damage. HP: {currentHP}/{maxHP}");
+        Debug.Log($"{gameObject.name} took {finalDamage} damage. HP: {currentHP}/{maxHP}");
+
+        DamagePopupManager.Instance?.ShowDamage(
+            finalDamage,
+            transform.position,
+            Color.red
+        );
 
         OnDamaged?.Invoke(currentHP);
 
